@@ -1,0 +1,25 @@
+name: rp2040               # should match folder name (validated)
+build:
+  type: cmake              # backend (cmake, platformio, zephyr, ...)
+  entry: ../../firmware    # required: path to CMakeLists (relative to manifest)
+# optional but recommended:
+env:
+  PICO_SDK_PATH: /home/docker/micro_ros_integration/third_party/pico-sdk
+build:
+  type: cmake
+  entry: ../..    # path to CMakeLists.txt (relative to manifest)
+  toolchain_file: ../../toolchains/arm-none-eabi.cmake
+  cmake_args:
+    - -DPLATFORM=rp2040  # TODO to move to constants
+    - -DCMAKE_BUILD_TYPE=Release
+    - -DPICO_EXCLUDE_PICOTOOL=ON
+    - -DCMAKE_TOOLCHAIN_FILE=toolchains/arm-none-eabi.cmake
+    - -DBUILD_EXAMPLES=OFF
+  config: Release
+  jobs: 8
+flash:
+  method: uf2_copy
+  uf2_mount_label: RPI-RP2
+  uf2_file: build/firmware.uf2
+  picotool_cmd: picotool load build/firmware.elf
+  openocd_cmd: openocd -f interface/raspberrypi-swd.cfg -f target/rp2040.cfg -c "program build/firmware.elf verify reset exit"

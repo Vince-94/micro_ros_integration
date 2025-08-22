@@ -1,0 +1,15 @@
+name: nucleo_f401re
+arch: armv7-m
+toolchain: arm-none-eabi
+toolchain_file: toolchains/arm-none-eabi.cmake
+build:
+    type: cmake
+    entry: firmware/
+flash:
+    tool: openocd
+    args: -f interface/stlink.cfg -f target/stm32f4x.cfg -c "program build/firmware.elf verify reset exit"
+transport:
+    type: uart
+    port: /dev/ttyUSB0
+    baud: 115200
+adapter: platforms/nucleo_f401re/adapter.c

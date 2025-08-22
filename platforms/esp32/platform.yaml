@@ -1,0 +1,14 @@
+name: esp32
+arch: xtensa
+build:
+  type: platformio
+  # path relative to platforms/esp32/ where a platformio.ini exists
+  entry: ../../firmware_esp32
+  # optional: pio environment name (the [env:...]) inside platformio.ini
+  env: esp32dev
+  # optional extra args passed to `pio run`
+  platformio_args:
+    - "-s"   # example: pass --silent as an extra, adjust as needed
+env:
+  # Any env var you need (e.g., PATH modifications). Example:
+  PATH: "/home/you/.local/bin:$PATH"

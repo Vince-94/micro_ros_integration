@@ -1,0 +1,29 @@
+# scripts/const.yaml
+# Centralized configuration/constants for scripts/build.py
+
+# Which build backends are considered "supported" for manifest guidance.
+# Note: backend implementations still live in scripts/build.py, this list is
+# primarily for validation and to avoid hardcoding lists in Python.
+supported_backends:
+  - cmake
+
+# Artifact file globs searched under the build directory for reporting to the user
+artifact_extensions:
+  - "*.elf"
+  - "*.uf2"
+  - "*.bin"
+  - "*.hex"
+  - "*.a"
+  - "*.so"
+  - "*.o"
+
+# Default build configuration and job count (used if manifest doesn't specify)
+defaults:
+  config: "Release"
+  jobs: 4
+
+# Environment variable name used to trigger a clean build before building
+clean_env_var: "BUILD_CLEAN"
+
+# Name/path of the CMake binary to invoke (allows CI to override)
+cmake_binary: "cmake"
