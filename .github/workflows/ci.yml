@@ -10,37 +10,42 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [rp2040, host, stm32]
+
     steps:
-      # Checkout repo
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # Install dependencies
       - name: Install toolchain and deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            cmake ninja-build build-essential \
-            gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi \
-            cppcheck clang-tidy
+          sudo apt-get install -y cmake ninja-build build-essential cppcheck clang-tidy
+          if [[ "${{ matrix.platform }}" == "rp2040" ]]; then
+            sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
+          fi
+          if [[ "${{ matrix.platform }}" == "stm32" ]]; then
+            sudo apt-get install -y gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
+            # (optionally install stlink/dfu-utils if flashing ever needed)
+          fi
 
-      # Configure CMake (cross-compile for RP2040)
       - name: Configure (CMake)
         run: |
           cmake -S . -B build \
             -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_TOOLCHAIN_FILE=toolchains/arm-none-eabi.cmake \
-            -DPICO_SDK_PATH=$GITHUB_WORKSPACE/third_party/pico-sdk \
             -DBUILD_EXAMPLES=OFF \
             -DPICO_BUILD_TESTS=OFF \
-            -DPICO_EXCLUDE_PICOTOOL=ON
+            -DPICO_EXCLUDE_PICOTOOL=ON \
+            -DPLATFORM=${{ matrix.platform }} \
+            $([[ "${{ matrix.platform }}" == "rp2040" ]] && echo "-DCMAKE_TOOLCHAIN_FILE=toolchains/arm-none-eabi.cmake -DPICO_SDK_PATH=$GITHUB_WORKSPACE/third_party/pico-sdk") \
+            $([[ "${{ matrix.platform }}" == "stm32" ]] && echo "-DCMAKE_TOOLCHAIN_FILE=toolchains/arm-none-eabi.cmake")
 
-      # Build firmware
       - name: Build firmware
         run: cmake --build build -- -j$(nproc)
 
-      # Run cppcheck
       - name: Static analysis (cppcheck)
         run: |
           cppcheck --enable=all --inconclusive --quiet \
@@ -48,17 +53,16 @@ jobs:
             --suppress=missingIncludeSystem \
             --force .
 
-      # Run clang-tidy
       - name: Static analysis (clang-tidy)
         run: |
           clang-tidy --version
           cmake --build build --target tidy || true
 
-      # Upload build artifacts
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v4
         with:
-          name: firmware-rp2040
+          name: firmware-${{ matrix.platform }}
           path: |
             build/**/*.uf2
             build/**/*.elf
+            build/**/*.bin
