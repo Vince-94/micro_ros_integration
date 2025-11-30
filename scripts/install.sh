@@ -10,7 +10,9 @@
 # -----------------------------------------------------------------------------
 set -euo pipefail
 
+
 TARGET_PLATFORM=$1
+
 
 #! Dependencies
 echo "Installing host packages for RP2040 build on Debian/Ubuntu..."
@@ -45,10 +47,16 @@ if [[ $TARGET_PLATFORM == "rp2040" ]]; then
     echo "RP2040 install toolchain"
 
     # from your repo root (or anywhere)
+    mkdir -p third_party
     cd third_party
 
-    git clone https://github.com/raspberrypi/pico-sdk.git
-    git submodule update --init --recursive
+    # clone or update pico-sdk idempotently
+    if [ -d pico-sdk ]; then
+        echo "Directory 'pico-sdk' already exists. Skipping clone"
+    else
+        git clone https://github.com/raspberrypi/pico-sdk.git
+        git submodule update --init --recursive
+    fi
 
     # set env (bash)
     export PICO_TOOLCHAIN_PATH=/usr/bin
@@ -56,11 +64,15 @@ if [[ $TARGET_PLATFORM == "rp2040" ]]; then
 
     cd ..
 
+#! rp2350
+elif [[ $TARGET_PLATFORM == "rp2350" ]]; then
+    echo "RP2350 install toolchain"
+
 #! esp32
 elif [[ $TARGET_PLATFORM == "esp32" ]]; then
     echo "ESP32 install toolchain"
 
-    python3 -m pip install --user -U platformio --break-system-packages
+    # python3 -m pip install --user -U platformio --break-system-packages
 
 #! stm32
 elif [[ $TARGET_PLATFORM == "stm32" ]]; then

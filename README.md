@@ -31,17 +31,37 @@ In such way, the user should be able to plug microcontrollers into an existing R
   - `Linux`: full support
   - `Windows`: with WSL2, limited in simulation and GUI
   - `macOS`: experimental
+- RTOS
+  - `FreeRTOS`
+  - `NuttX`
+  - `Zephyr`
 - Target platform (MCU)
-  - `rp2040`
-  - `esp32`
-  - `stm32`
+  - `RP2040`
+  - `RP2350`
+  - `ESP32`
+  - `STM32`
 - Transport layer:
-  - `uart`
-  - `udp`
-  - `serial`
+  - `UART / Serial (TTL)`
+  - `USB`
+  - `TCP`
+  - `UDP`
+
+
+| Board / RTOS                      | FreeRTOS | Zephyr | NuttX |
+| --------------------------------- | -------: | -----: | ----: |
+| **RP2040 (Pico)**                 |        ✅ |      ✅ |     ✅ |
+| **RP2350 (Pico 2 / XIAO RP2350)** |        ⚠️ |      ⚠️ |     ✅ |
+| **ESP32 (WROOM / S3 / etc.)**     |        ✅ |      ✅ |     ✅ |
+| **STM32 (F4/H7/…)**               |        ✅ |      ✅ |     ✅ |
+
+✅ = common / mature support
+⚠️ = community / WIP or requires extra effort
 
 
 ## How to use
+
+> [!NOTE]
+> Refer to [cheatsheet](docs/cheatsheet.md) for all the available commands.
 
 1. Install deps
     ```sh
@@ -55,9 +75,24 @@ In such way, the user should be able to plug microcontrollers into an existing R
     ```sh
     source cli.sh flash <PLATFORM> [METHOD]
     ```
+4. Check firmware
+    ```sh
+    source cli.sh verify <PLATFORM>
+    ```
+5. Clean firmware
+    ```sh
+    source cli.sh Clean <PLATFORM>
+    ```
 
-> [!NOTE]
-> Refer to [cheatsheet](docs/cheatsheet.md) for all the available commands.
+| Board      | FreeRTOS                                       | Zephyr                                    | NuttX                         |
+| ---------- | ---------------------------------------------- | ----------------------------------------- | ----------------------------- |
+| **RP2040** | S ✅, IP ⚠️ (Pico W)                             | S ✅, IP ⚠️ (Pico W)                        | S ⚠️, IP ⚠️                     |
+| **RP2350** | S ✅, IP ⚠️ (Pico 2W)                            | S ⚠️, IP ⚠️ (Pico 2W)                       | S ✅, IP ⚠️                     |
+| **ESP32**  | S ✅, IP ✅ (Wi-Fi)                              | S ✅, IP ✅ (if Zephyr build enables Wi-Fi) | S ✅, IP ⚠️ (depends on port)   |
+| **STM32**  | S ✅, IP ✅ (if board has Ethernet/Wi-Fi + LwIP) | S ✅, IP ✅ (if netstack + driver present)  | S ✅, IP ⚠️ (if driver present) |
+
+`S` (Serial) = easiest transport; almost always available.
+`IP` (UDP/TCP) = requires actual network hardware (Wi-Fi/Ethernet) and a working RTOS network stack/driver. For RP2xxx parts, plain Pico without “W” is IP-less unless you add NIC.
 
 
 ## CI
@@ -83,6 +118,21 @@ If we missed a library, contributor, or other project that should be acknowledge
 
 
 ## Roadmap
-- [ ] Supported OS
-  - [ ] MacOS
+- [ ] Boards status:
+  - [ ] RP2040
+    - [x] Install
+    - [ ] Build
+    - [ ] Flash
+  - [ ] RP2350
+    - [ ] Install
+    - [ ] Build
+    - [ ] Flash
+  - [ ] ESP32
+    - [ ] Install
+    - [ ] Build
+    - [ ] Flash
+  - [ ] STM32
+    - [ ] Install
+    - [ ] Build
+    - [ ] Flash
 - [ ] CI

@@ -39,36 +39,30 @@ fi
 #! install
 if [[ $1 == "install" ]]; then
     # arg1 = target platform (e.g., rp2040, esp32, stm32)
-    ./scripts/install.sh $2
-
+    source scripts/install.sh $2
 
 #! build
 elif [[ $1 == "build" ]]; then
     # arg1 = target platform (e.g., rp2040, esp32, stm32)
     python3 scripts/build.py --platform $2
 
-
 #! flash
 elif [[ $1 == "flash" ]]; then
     python3 scripts/flash.py --platform $2 --wait 2
-
 
 #! verify
 elif [[ $1 == "verify" ]]; then
     python3 scripts/verify.py --platform $2 --no-agent
 
-
 #! clean
 elif [[ $1 == "clean" ]]; then
     rm -rf platforms/$2/build
-
 
 #! help
 elif [[ $1 == "help" ]]; then
     echo -en "${CYAN}"
     echo "Help"
     echo -en "\n${YELLOW}"
-
 
 #! default
 else
